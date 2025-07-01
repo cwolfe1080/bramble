@@ -1,6 +1,22 @@
 import curses
 import textwrap
 
+def save_to_file(buffer, filename="document.txt"):
+    with open(filename, "w") as f:
+        for line in buffer:
+            f.write(line + "\n")
+
+def load_from_file(filename="document.txt"):
+    try:
+        with open(filename, "r") as f:
+            return [line.rstrip("\n") for line in f.readlines()]
+    except FileNotFoundError:
+        return ['']
+
+
+
+
+
 def main(stdscr):
     curses.curs_set(1)
     stdscr.clear()
@@ -30,7 +46,13 @@ def main(stdscr):
                 cursor_y -= 1
                 cursor_x = len(buffer[cursor_y])
                 buffer[cursor_y] += current_line
+        elif key == 23: # Ctrl+S
+            save_to_file(buffer)
 
+        elif key == 15:# Crl+O
+            buffer = load_from_file()
+            cursor_y, cursor_x = 0, 0
+             
         elif 32 <= key <= 126:
             line = buffer[cursor_y]
             buffer[cursor_y] = line[:cursor_x] + chr(key) + line[cursor_x:]
