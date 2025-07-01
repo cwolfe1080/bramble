@@ -1,6 +1,5 @@
 import curses
 import textwrap
-import time
 
 def save_to_file(buffer, filename="document.txt"):
     with open(filename, "w") as f:
@@ -15,26 +14,39 @@ def load_from_file(filename="document.txt"):
         return ['']
 
 def move_cursor(direction, buffer, cursor_y, cursor_x):
-    print('function called')
     if direction == 'left':
-        if 0 <= cursor_x <= len(buffer[cursor_y]):
-            new_cursor_x = cursor_x - 1
-            new_cursor_y = cursor_y
-        elif cursor_y == 0 and cursor_x == 0:
-            new_cursor_y, new_cursor_x = cursor_y, cursor_x
+        if cursor_x > 0:
+            return cursor_y, cursor_x - 1
+        elif cursor_y > 0:
+            return cursor_y - 1, len(buffer[cursor_y - 1])
         else:
-            move_to = len(buffer[cursor_y - 1])
-            new_cursor_y = cursor_y - 1
-            new_cursor_x = move_to
-            
+            return cursor_y, cursor_x
 
+    elif direction == 'right':
+        if cursor_x < len(buffer[cursor_y]):
+            return cursor_y, cursor_x + 1
+        elif cursor_y + 1 < len(buffer):
+            return cursor_y + 1, 0
+        else:
+            return cursor_y, cursor_x
 
-    
-    return new_cursor_y, new_cursor_x
+    elif direction == 'up':
+        if cursor_y > 0:
+            new_y = cursor_y - 1
+            new_x = min(cursor_x, len(buffer[new_y]))
+            return new_y, new_x
+        else:
+            return cursor_y, cursor_x
 
+    elif direction == 'down':
+        if cursor_y + 1 < len(buffer):
+            new_y = cursor_y + 1
+            new_x = min(cursor_x, len(buffer[new_y]))
+            return new_y, new_x
+        else:
+            return cursor_y, cursor_x
 
-
-
+    return cursor_y, cursor_x  # fallback
 
 def main(stdscr):
     curses.curs_set(1)
@@ -47,7 +59,7 @@ def main(stdscr):
     while True:
         key = stdscr.getch()
 
-        if key == 27:  # ESC to exit
+        if key == 17:  # ESC to exit
             break
 
         elif key in (10, 13):  # Enter
@@ -65,31 +77,31 @@ def main(stdscr):
                 cursor_y -= 1
                 cursor_x = len(buffer[cursor_y])
                 buffer[cursor_y] += current_line
-        elif key == 23: # Ctrl+S
+
+        elif key == 23:  # Ctrl+W to save
             save_to_file(buffer)
 
-        elif key == 15:# Crl+O
+        elif key == 15:  # Ctrl+O to load
             buffer = load_from_file()
             cursor_y, cursor_x = 0, 0
-            
-        elif key == 260:
+
+        elif key == curses.KEY_LEFT:
             cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
-                    
-        elif key == 261:
+
+        elif key == curses.KEY_RIGHT:
             cursor_y, cursor_x = move_cursor('right', buffer, cursor_y, cursor_x)
 
-        elif key == 259:
+        elif key == curses.KEY_UP:
             cursor_y, cursor_x = move_cursor('up', buffer, cursor_y, cursor_x)
 
-        elif key == 258: 
+        elif key == curses.KEY_DOWN:
             cursor_y, cursor_x = move_cursor('down', buffer, cursor_y, cursor_x)
-             
+
         elif 32 <= key <= 126:
             line = buffer[cursor_y]
             buffer[cursor_y] = line[:cursor_x] + chr(key) + line[cursor_x:]
             cursor_x += 1
 
-            # If the line exceeds width, wrap it intelligently
             if len(buffer[cursor_y]) > width:
                 long_line = buffer.pop(cursor_y)
                 wrapped = textwrap.wrap(long_line, width)
@@ -97,13 +109,10 @@ def main(stdscr):
                 cursor_y += len(wrapped) - 1
                 cursor_x = len(wrapped[-1])
 
-        # Keep cursor within bounds
-        if cursor_y >= len(buffer):
-            cursor_y = len(buffer) - 1
-        if cursor_x > len(buffer[cursor_y]):
-            cursor_x = len(buffer[cursor_y])
+        # Clamp cursor
+        cursor_y = max(0, min(cursor_y, len(buffer) - 1))
+        cursor_x = max(0, min(cursor_x, len(buffer[cursor_y])))
 
-        # Draw the buffer
         stdscr.clear()
         for i, line in enumerate(buffer[:height]):
             stdscr.addstr(i, 0, line[:width])
