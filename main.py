@@ -1,5 +1,6 @@
 import curses
 import textwrap
+import time
 
 def save_to_file(buffer, filename="document.txt"):
     with open(filename, "w") as f:
@@ -12,6 +13,24 @@ def load_from_file(filename="document.txt"):
             return [line.rstrip("\n") for line in f.readlines()]
     except FileNotFoundError:
         return ['']
+
+def move_cursor(direction, buffer, cursor_y, cursor_x):
+    print('function called')
+    if direction == 'left':
+        if 0 <= cursor_x <= len(buffer[cursor_y]):
+            new_cursor_x = cursor_x - 1
+            new_cursor_y = cursor_y
+        elif cursor_y == 0 and cursor_x == 0:
+            new_cursor_y, new_cursor_x = cursor_y, cursor_x
+        else:
+            move_to = len(buffer[cursor_y - 1])
+            new_cursor_y = cursor_y - 1
+            new_cursor_x = move_to
+            
+
+
+    
+    return new_cursor_y, new_cursor_x
 
 
 
@@ -52,6 +71,18 @@ def main(stdscr):
         elif key == 15:# Crl+O
             buffer = load_from_file()
             cursor_y, cursor_x = 0, 0
+            
+        elif key == 260:
+            cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
+                    
+        elif key == 261:
+            cursor_y, cursor_x = move_cursor('right', buffer, cursor_y, cursor_x)
+
+        elif key == 259:
+            cursor_y, cursor_x = move_cursor('up', buffer, cursor_y, cursor_x)
+
+        elif key == 258: 
+            cursor_y, cursor_x = move_cursor('down', buffer, cursor_y, cursor_x)
              
         elif 32 <= key <= 126:
             line = buffer[cursor_y]
