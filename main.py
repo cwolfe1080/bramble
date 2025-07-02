@@ -5,6 +5,7 @@ import time
 # Initialize
 current_filename = ''
 scroll_offset = 0
+modified = False
 
 def save_to_file(buffer, filename):
     with open(filename, "w") as f:
@@ -75,14 +76,28 @@ def draw_status_bar(stdscr, filename, buffer, cursor_y, cursor_x):
     name = filename if filename else "Untitled"
     word_count = sum(len(line.split()) for line in buffer)
     clock = time.strftime("%H:%M")
-    status = f" {name} - Words: {word_count} - Ln {cursor_y+1}, Col {cursor_x+1} - {clock} "
+    mod_marker = "*" if modified else ""
+    status = f" {name}{mod_marker} - Words: {word_count} - Ln {cursor_y+1}, Col {cursor_x+1} - {clock} "
     stdscr.attron(curses.A_REVERSE)
     stdscr.addstr(h - 1, 0, status[:w-1])
     stdscr.addstr(h - 1, len(status), " " * (w - len(status) - 1))
     stdscr.attroff(curses.A_REVERSE)
 
+def confirm_exit(stdscr):
+    h, w = stdscr.getmaxyx()
+    win = curses.newwin(5, 50, (h - 5) // 2, (w - 50) // 2)
+    win.box()
+    win.addstr(2, 2, "Unsaved changes. Exit anyway? (Y/N)")
+    win.refresh()
+    while True:
+        ch = win.getch()
+        if ch in (ord('y'), ord('Y')):
+            return True
+        elif ch in (ord('n'), ord('N')):
+            return False
+
 def main(stdscr):
-    global current_filename, scroll_offset
+    global current_filename, scroll_offset, modified
     curses.curs_set(1)
     stdscr.clear()
 
@@ -95,7 +110,11 @@ def main(stdscr):
         key = stdscr.getch()
 
         if key == 24:  # Ctrl+X to exit
-            break
+            if modified:
+                if confirm_exit(stdscr):
+                    break
+            else:
+                break
 
         elif key in (10, 13):  # Enter
             buffer.insert(cursor_y + 1, '')
@@ -116,11 +135,13 @@ def main(stdscr):
         elif key == 5:  # Ctrl+E to Save As
             name = prompt_filename(stdscr, "Name document: ")
             if name:
+                modified = False
                 current_filename = name
                 save_to_file(buffer, current_filename)
 
         elif key == 23:  # Ctrl+W to Save
             if current_filename:
+                modified = False
                 save_to_file(buffer, current_filename)
                 show_popup(stdscr, f"Saved {current_filename}", 50, 5)
             else:
@@ -147,6 +168,7 @@ def main(stdscr):
             cursor_y, cursor_x = move_cursor('down', buffer, cursor_y, cursor_x)
 
         elif 32 <= key <= 126:
+            modified = True
             line = buffer[cursor_y]
             buffer[cursor_y] = line[:cursor_x] + chr(key) + line[cursor_x:]
             cursor_x += 1
