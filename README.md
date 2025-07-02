@@ -14,3 +14,6 @@ Load document - Ctrl + O
 Save as - Ctrl + E  
 Save - Ctrl + W  
 Help menu - Ctrl + H  
+
+## How to run
+`python bramble.py`  
