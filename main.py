@@ -65,9 +65,9 @@ def prompt_filename(stdscr, prompt_msg):
 def show_popup(stdscr, message, width, height):
     h, w = stdscr.getmaxyx()
     win = curses.newwin(height, width, (h - height) // 2, (w - width) // 2)
-    win.box
+    win.box()
     win.addstr(2, 2, message[:width - 4])
-    win.refresh
+    win.refresh()
     stdscr.getch()
     win.clear()
     stdscr.refresh()
@@ -86,6 +86,11 @@ def main(stdscr):
         key = stdscr.getch()
 
         if key == 24:  # Ctrl + X to exit
+            h, w = stdscr.getmaxyx()
+            win = curses.newwin(5, 50, (h - 5) // 2, (w - 50) // 2)
+            win.box()
+            win.addstr(2, 2, "Exiting..."[:50 - 4])
+            win.refresh()
             break
 
         elif key in (10, 13):  # Enter
@@ -113,11 +118,11 @@ def main(stdscr):
 
         elif key == 23:  # Ctrl+W to save
             if current_filename == 'None':
-                show_popup(stdscr, "No filename set. Use Save As (Ctrl+E) first.", 40, 5)
+                show_popup(stdscr, "No filename set. Use Save As (Ctrl+E) first.", 50, 5)
             else:
                 save_to_file(buffer, current_filename)
                 name = "Saved " + current_filename
-                show_popup(stdscr, name, 40, 5)
+                show_popup(stdscr, name, 50, 5)
 
         elif key == 15:  # Ctrl+O to load
             name = prompt_filename(stdscr, "Load document: ")
