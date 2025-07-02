@@ -91,7 +91,7 @@ def main(stdscr):
     stdscr.clear()
 
     height, width = stdscr.getmaxyx()
-    usable_height = height - 1 # Leave the last line open for the status bar
+    height = height - 1 # Leave the last line open for the status bar
     buffer = ['']
     cursor_y, cursor_x = 0, 0
 
