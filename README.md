@@ -5,10 +5,12 @@ A lightweight, distraction-free word processor for writerdecks. Bramble runs in 
 ## Features
  - Word Wrapping
  - Load and save files
- - Navigate with arrow keys
+ - Navigate and scroll with arrow keys
+ - A status bar displaying the filename, word count, local time, and more
 
 ## Controls
 Exit - Ctrl + X  
 Load document - Ctrl + O  
 Save as - Ctrl + E  
 Save - Ctrl + W  
+Help menu - Ctrl + H  
