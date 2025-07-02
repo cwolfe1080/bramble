@@ -2,8 +2,9 @@ import curses
 import textwrap
 import time
 
-# Initialize variables:
+# Initialize
 current_filename = ''
+scroll_offset = 0
 
 def save_to_file(buffer, filename):
     with open(filename, "w") as f:
@@ -25,7 +26,6 @@ def move_cursor(direction, buffer, cursor_y, cursor_x):
             return cursor_y - 1, len(buffer[cursor_y - 1])
         else:
             return cursor_y, cursor_x
-
     elif direction == 'right':
         if cursor_x < len(buffer[cursor_y]):
             return cursor_y, cursor_x + 1
@@ -33,7 +33,6 @@ def move_cursor(direction, buffer, cursor_y, cursor_x):
             return cursor_y + 1, 0
         else:
             return cursor_y, cursor_x
-
     elif direction == 'up':
         if cursor_y > 0:
             new_y = cursor_y - 1
@@ -41,7 +40,6 @@ def move_cursor(direction, buffer, cursor_y, cursor_x):
             return new_y, new_x
         else:
             return cursor_y, cursor_x
-
     elif direction == 'down':
         if cursor_y + 1 < len(buffer):
             new_y = cursor_y + 1
@@ -49,8 +47,7 @@ def move_cursor(direction, buffer, cursor_y, cursor_x):
             return new_y, new_x
         else:
             return cursor_y, cursor_x
-
-    return cursor_y, cursor_x  # fallback
+    return cursor_y, cursor_x
 
 def prompt_filename(stdscr, prompt_msg):
     stdscr.clear()
@@ -72,7 +69,6 @@ def show_popup(stdscr, message, width, height):
     stdscr.getch()
     win.clear()
     stdscr.refresh()
-    return
 
 def draw_status_bar(stdscr, filename, buffer, cursor_y, cursor_x):
     h, w = stdscr.getmaxyx()
@@ -84,26 +80,21 @@ def draw_status_bar(stdscr, filename, buffer, cursor_y, cursor_x):
     stdscr.addstr(h - 1, 0, status[:w-1])
     stdscr.addstr(h - 1, len(status), " " * (w - len(status) - 1))
     stdscr.attroff(curses.A_REVERSE)
-    
+
 def main(stdscr):
-    global current_filename
+    global current_filename, scroll_offset
     curses.curs_set(1)
     stdscr.clear()
 
     height, width = stdscr.getmaxyx()
-    height = height - 1 # Leave the last line open for the status bar
+    height -= 1  # Leave last line for status bar
     buffer = ['']
     cursor_y, cursor_x = 0, 0
 
     while True:
         key = stdscr.getch()
 
-        if key == 24:  # Ctrl + X to exit
-            h, w = stdscr.getmaxyx()
-            win = curses.newwin(5, 50, (h - 5) // 2, (w - 50) // 2)
-            win.box()
-            win.addstr(2, 2, "Exiting..."[:50 - 4])
-            win.refresh()
+        if key == 24:  # Ctrl+X to exit
             break
 
         elif key in (10, 13):  # Enter
@@ -122,28 +113,26 @@ def main(stdscr):
                 cursor_x = len(buffer[cursor_y])
                 buffer[cursor_y] += current_line
 
-        elif key == 5: # Ctrl+E to save as
+        elif key == 5:  # Ctrl+E to Save As
             name = prompt_filename(stdscr, "Name document: ")
-            if name == '':
-                continue
-            current_filename = name
-            save_to_file(buffer, current_filename)
-
-        elif key == 23:  # Ctrl+W to save
-            if current_filename == '':
-                show_popup(stdscr, "No filename set. Use Save As (Ctrl+E) first.", 50, 5)
-            else:
+            if name:
+                current_filename = name
                 save_to_file(buffer, current_filename)
-                name = "Saved " + current_filename
-                show_popup(stdscr, name, 50, 5)
 
-        elif key == 15:  # Ctrl+O to load
+        elif key == 23:  # Ctrl+W to Save
+            if current_filename:
+                save_to_file(buffer, current_filename)
+                show_popup(stdscr, f"Saved {current_filename}", 50, 5)
+            else:
+                show_popup(stdscr, "No filename set. Use Save As (Ctrl+E) first.", 50, 5)
+
+        elif key == 15:  # Ctrl+O to Load
             name = prompt_filename(stdscr, "Load document: ")
-            if name == '':
-                continue
-            current_filename = name
-            buffer = load_from_file(name)
-            cursor_y, cursor_x = 0, 0
+            if name:
+                current_filename = name
+                buffer = load_from_file(name)
+                cursor_y, cursor_x = 0, 0
+                scroll_offset = 0
 
         elif key == curses.KEY_LEFT:
             cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
@@ -173,15 +162,21 @@ def main(stdscr):
         cursor_y = max(0, min(cursor_y, len(buffer) - 1))
         cursor_x = max(0, min(cursor_x, len(buffer[cursor_y])))
 
+        # Scroll logic
+        if cursor_y < scroll_offset:
+            scroll_offset = cursor_y
+        elif cursor_y >= scroll_offset + height:
+            scroll_offset = cursor_y - height + 1
+        scroll_offset = max(0, min(scroll_offset, len(buffer) - height))
+
         stdscr.clear()
         draw_status_bar(stdscr, current_filename, buffer, cursor_y, cursor_x)
-        for i, line in enumerate(buffer[:height]):
+        for i, line in enumerate(buffer[scroll_offset : scroll_offset + height]):
             stdscr.addstr(i, 0, line[:width])
         try:
-            stdscr.move(cursor_y, cursor_x)
+            stdscr.move(cursor_y - scroll_offset, cursor_x)
         except curses.error:
             pass
-
         stdscr.refresh()
 
 curses.wrapper(main)
