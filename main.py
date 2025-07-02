@@ -2,7 +2,7 @@ import curses
 import textwrap
 import time
 
-# Initialize
+# Initialize state
 current_filename = ''
 scroll_offset = 0
 modified = False
@@ -25,29 +25,17 @@ def move_cursor(direction, buffer, cursor_y, cursor_x):
             return cursor_y, cursor_x - 1
         elif cursor_y > 0:
             return cursor_y - 1, len(buffer[cursor_y - 1])
-        else:
-            return cursor_y, cursor_x
     elif direction == 'right':
         if cursor_x < len(buffer[cursor_y]):
             return cursor_y, cursor_x + 1
         elif cursor_y + 1 < len(buffer):
             return cursor_y + 1, 0
-        else:
-            return cursor_y, cursor_x
     elif direction == 'up':
         if cursor_y > 0:
-            new_y = cursor_y - 1
-            new_x = min(cursor_x, len(buffer[new_y]))
-            return new_y, new_x
-        else:
-            return cursor_y, cursor_x
+            return cursor_y - 1, min(cursor_x, len(buffer[cursor_y - 1]))
     elif direction == 'down':
         if cursor_y + 1 < len(buffer):
-            new_y = cursor_y + 1
-            new_x = min(cursor_x, len(buffer[new_y]))
-            return new_y, new_x
-        else:
-            return cursor_y, cursor_x
+            return cursor_y + 1, min(cursor_x, len(buffer[cursor_y + 1]))
     return cursor_y, cursor_x
 
 def prompt_filename(stdscr, prompt_msg):
@@ -55,7 +43,6 @@ def prompt_filename(stdscr, prompt_msg):
     curses.echo()
     stdscr.addstr(0, 0, prompt_msg)
     stdscr.addstr(3, 0, "Leave blank to cancel")
-    stdscr.clrtoeol()
     stdscr.refresh()
     filename = stdscr.getstr(1, 0, 60).decode('utf-8')
     curses.noecho()
@@ -68,6 +55,31 @@ def show_popup(stdscr, message, width, height):
     win.addstr(2, 2, message[:width - 4])
     win.refresh()
     stdscr.getch()
+    win.clear()
+    stdscr.refresh()
+
+def show_help_menu(stdscr):
+    help_text = [
+        "Bramble Help Menu",
+        "",
+        "Ctrl+E   → Save As (Names and saves the buffer)",
+        "Ctrl+W   → Save (Saves the buffer to the current filename)",
+        "Ctrl+O   → Open a document",
+        "Ctrl+X   → Exit",
+        "Ctrl+H   → Show this help menu",
+        "Arrow Keys → Move cursor",
+        "",
+        "Press any key to return to editing..."
+    ]
+    h, w = stdscr.getmaxyx()
+    win_height = len(help_text) + 2
+    win_width = max(len(line) for line in help_text) + 4
+    win = curses.newwin(win_height, win_width, (h - win_height) // 2, (w - win_width) // 2)
+    win.box()
+    for i, line in enumerate(help_text):
+        win.addstr(i + 1, 2, line)
+    win.refresh()
+    win.getch()
     win.clear()
     stdscr.refresh()
 
@@ -102,76 +114,78 @@ def main(stdscr):
     stdscr.clear()
 
     height, width = stdscr.getmaxyx()
-    height -= 1  # Leave last line for status bar
+    height -= 1
     buffer = ['']
     cursor_y, cursor_x = 0, 0
 
     while True:
         key = stdscr.getch()
 
-        if key == 24:  # Ctrl+X to exit
-            if modified:
-                if confirm_exit(stdscr):
-                    break
-            else:
-                break
+        if key == 24:  # Ctrl+X
+            if modified and not confirm_exit(stdscr):
+                continue
+            break
+
+        elif key == 8:  # Ctrl+H
+            show_help_menu(stdscr)
 
         elif key in (10, 13):  # Enter
             buffer.insert(cursor_y + 1, '')
             cursor_y += 1
             cursor_x = 0
+            modified = True
 
         elif key in (curses.KEY_BACKSPACE, 127, 8):
             if cursor_x > 0:
                 line = buffer[cursor_y]
                 buffer[cursor_y] = line[:cursor_x - 1] + line[cursor_x:]
                 cursor_x -= 1
+                modified = True
             elif cursor_y > 0:
                 current_line = buffer.pop(cursor_y)
                 cursor_y -= 1
                 cursor_x = len(buffer[cursor_y])
                 buffer[cursor_y] += current_line
+                modified = True
 
-        elif key == 5:  # Ctrl+E to Save As
+        elif key == 5:  # Ctrl+E
             name = prompt_filename(stdscr, "Name document: ")
             if name:
-                modified = False
                 current_filename = name
                 save_to_file(buffer, current_filename)
-
-        elif key == 23:  # Ctrl+W to Save
-            if current_filename:
                 modified = False
+
+        elif key == 23:  # Ctrl+W
+            if current_filename:
                 save_to_file(buffer, current_filename)
+                modified = False
                 show_popup(stdscr, f"Saved {current_filename}", 50, 5)
             else:
                 show_popup(stdscr, "No filename set. Use Save As (Ctrl+E) first.", 50, 5)
 
-        elif key == 15:  # Ctrl+O to Load
+        elif key == 15:  # Ctrl+O
             name = prompt_filename(stdscr, "Load document: ")
             if name:
                 current_filename = name
                 buffer = load_from_file(name)
                 cursor_y, cursor_x = 0, 0
                 scroll_offset = 0
+                modified = False
 
         elif key == curses.KEY_LEFT:
             cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
-
         elif key == curses.KEY_RIGHT:
             cursor_y, cursor_x = move_cursor('right', buffer, cursor_y, cursor_x)
-
         elif key == curses.KEY_UP:
             cursor_y, cursor_x = move_cursor('up', buffer, cursor_y, cursor_x)
-
         elif key == curses.KEY_DOWN:
             cursor_y, cursor_x = move_cursor('down', buffer, cursor_y, cursor_x)
 
         elif 32 <= key <= 126:
-            modified = True
             line = buffer[cursor_y]
             buffer[cursor_y] = line[:cursor_x] + chr(key) + line[cursor_x:]
             cursor_x += 1
+            modified = True
 
             if len(buffer[cursor_y]) > width:
                 long_line = buffer.pop(cursor_y)
@@ -202,3 +216,4 @@ def main(stdscr):
         stdscr.refresh()
 
 curses.wrapper(main)
+
