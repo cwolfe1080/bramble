@@ -59,7 +59,7 @@ def main(stdscr):
     while True:
         key = stdscr.getch()
 
-        if key == 17:  # ESC to exit
+        if key == 24:  # Ctrl + X to exit
             break
 
         elif key in (10, 13):  # Enter

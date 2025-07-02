@@ -1,7 +1,8 @@
 # Bramble Word Processor
 
-A lightweight, cli word processor built for writerdecks.
+A lightweight, distraction-free word processor for writerdecks. Runs in CLI and  written in python.
 
 ## Features
  - Word Wrapping
  - Very basic file saving/loading (to be upgraded soon)
+ - Navigate with arrow keys
