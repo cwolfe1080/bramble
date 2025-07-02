@@ -9,13 +9,13 @@ modified = False
 time_24h = True
 
 def save_to_file(buffer, filename):
-    with open(filename, "w") as f:
+    with open(filename + '.txt', "w") as f:
         for line in buffer:
             f.write(line + "\n")
 
 def load_from_file(filename):
     try:
-        with open(filename, "r") as f:
+        with open(filename + '.txt', "r") as f:
             return [line.rstrip("\n") for line in f.readlines()]
     except FileNotFoundError:
         return ['']
