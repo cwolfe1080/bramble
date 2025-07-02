@@ -1,12 +1,15 @@
 import curses
 import textwrap
 
-def save_to_file(buffer, filename="document.txt"):
+# Initialize variables:
+current_filename = 'None'
+
+def save_to_file(buffer, filename):
     with open(filename, "w") as f:
         for line in buffer:
             f.write(line + "\n")
 
-def load_from_file(filename="document.txt"):
+def load_from_file(filename):
     try:
         with open(filename, "r") as f:
             return [line.rstrip("\n") for line in f.readlines()]
@@ -48,7 +51,30 @@ def move_cursor(direction, buffer, cursor_y, cursor_x):
 
     return cursor_y, cursor_x  # fallback
 
+def prompt_filename(stdscr, prompt_msg):
+    stdscr.clear()
+    curses.echo()
+    stdscr.addstr(0, 0, prompt_msg)
+    stdscr.addstr(3, 0, "Leave blank to cancel")
+    stdscr.clrtoeol()
+    stdscr.refresh()
+    filename = stdscr.getstr(1, 0, 60).decode('utf-8')
+    curses.noecho()
+    return filename
+
+def show_popup(stdscr, message, width, height):
+    h, w = stdscr.getmaxyx()
+    win = curses.newwin(height, width, (h - height) // 2, (w - width) // 2)
+    win.box
+    win.addstr(2, 2, message[:width - 4])
+    win.refresh
+    stdscr.getch()
+    win.clear()
+    stdscr.refresh()
+    return
+
 def main(stdscr):
+    global current_filename
     curses.curs_set(1)
     stdscr.clear()
 
@@ -78,11 +104,27 @@ def main(stdscr):
                 cursor_x = len(buffer[cursor_y])
                 buffer[cursor_y] += current_line
 
+        elif key == 5: # Ctrl+E to save as
+            name = prompt_filename(stdscr, "Name document: ")
+            if name == '':
+                continue
+            current_filename = name
+            save_to_file(buffer, current_filename)
+
         elif key == 23:  # Ctrl+W to save
-            save_to_file(buffer)
+            if current_filename == 'None':
+                show_popup(stdscr, "No filename set. Use Save As (Ctrl+E) first.", 40, 5)
+            else:
+                save_to_file(buffer, current_filename)
+                name = "Saved " + current_filename
+                show_popup(stdscr, name, 40, 5)
 
         elif key == 15:  # Ctrl+O to load
-            buffer = load_from_file()
+            name = prompt_filename(stdscr, "Load document: ")
+            if name == '':
+                continue
+            current_filename = name
+            buffer = load_from_file(name)
             cursor_y, cursor_x = 0, 0
 
         elif key == curses.KEY_LEFT:

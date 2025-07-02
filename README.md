@@ -10,5 +10,5 @@ A lightweight, distraction-free word processor for writerdecks. Runs in CLI and 
 ## Controls
 Exit - Ctrl + X  
 Load document - Ctrl + O  
-Save as - Ctrl + Shift + W  
+Save as - Ctrl + E  
 Save - Ctrl + W  
