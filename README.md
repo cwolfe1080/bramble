@@ -1,19 +1,21 @@
 # Bramble Word Processor
 
-A lightweight, distraction-free word processor for writerdecks. Bramble runs in CLI (the terminal) and was written in python and python curses, a package that comes pre-installed with most python installations.
+**Bramble** is a lightweight, terminal-based word processor built for writer decks. It's designed to be distraction-free, fast, and intuitive-perfect for draftitng stories, notes, or anything in plain text.
+
+## Launch
+To start Bramble:  
+```python bramble.py```
 
 ## Features
+ - File Saving & Loading
  - Word Wrapping
- - Load and save files
- - Navigate and scroll with arrow keys
- - A status bar displaying the filename, word count, local time, and more
+ - Status bar displaying filename, word count, local time, and more
+ - Minimal UI
 
-## Controls
-Exit - Ctrl + X  
-Load document - Ctrl + O  
-Save as - Ctrl + E  
-Save - Ctrl + W  
-Help menu - Ctrl + H  
-
-## How to run
-`python bramble.py`  
+## Keybindings
+Ctrl+E     Save As  
+Ctrl+W     Save  
+Ctrl+O     Open file  
+Ctrl+X     Exit  
+Ctrl+H     Show help menu  
+Ctrl+T     Toggle time format  
