@@ -1,8 +1,9 @@
 import curses
 import textwrap
+import time
 
 # Initialize variables:
-current_filename = 'None'
+current_filename = ''
 
 def save_to_file(buffer, filename):
     with open(filename, "w") as f:
@@ -73,12 +74,24 @@ def show_popup(stdscr, message, width, height):
     stdscr.refresh()
     return
 
+def draw_status_bar(stdscr, filename, buffer, cursor_y, cursor_x):
+    h, w = stdscr.getmaxyx()
+    name = filename if filename else "Untitled"
+    word_count = sum(len(line.split()) for line in buffer)
+    clock = time.strftime("%H:%M")
+    status = f" {name} - Words: {word_count} - Ln {cursor_y+1}, Col {cursor_x+1} - {clock} "
+    stdscr.attron(curses.A_REVERSE)
+    stdscr.addstr(h - 1, 0, status[:w-1])
+    stdscr.addstr(h - 1, len(status), " " * (w - len(status) - 1))
+    stdscr.attroff(curses.A_REVERSE)
+    
 def main(stdscr):
     global current_filename
     curses.curs_set(1)
     stdscr.clear()
 
     height, width = stdscr.getmaxyx()
+    usable_height = height - 1 # Leave the last line open for the status bar
     buffer = ['']
     cursor_y, cursor_x = 0, 0
 
@@ -117,7 +130,7 @@ def main(stdscr):
             save_to_file(buffer, current_filename)
 
         elif key == 23:  # Ctrl+W to save
-            if current_filename == 'None':
+            if current_filename == '':
                 show_popup(stdscr, "No filename set. Use Save As (Ctrl+E) first.", 50, 5)
             else:
                 save_to_file(buffer, current_filename)
@@ -161,12 +174,14 @@ def main(stdscr):
         cursor_x = max(0, min(cursor_x, len(buffer[cursor_y])))
 
         stdscr.clear()
+        draw_status_bar(stdscr, current_filename, buffer, cursor_y, cursor_x)
         for i, line in enumerate(buffer[:height]):
             stdscr.addstr(i, 0, line[:width])
         try:
             stdscr.move(cursor_y, cursor_x)
         except curses.error:
             pass
+
         stdscr.refresh()
 
 curses.wrapper(main)
