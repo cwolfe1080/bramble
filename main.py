@@ -6,6 +6,7 @@ import time
 current_filename = ''
 scroll_offset = 0
 modified = False
+time_24h = True
 
 def save_to_file(buffer, filename):
     with open(filename, "w") as f:
@@ -66,8 +67,11 @@ def show_help_menu(stdscr):
         "Ctrl+W   → Save (Saves the buffer to the current filename)",
         "Ctrl+O   → Open a document",
         "Ctrl+X   → Exit",
+        "Ctrl+T   → Toggle time format",
         "Ctrl+H   → Show this help menu",
         "Arrow Keys → Move cursor",
+        "",
+        "See github.com/cwolfe1080/bramble.git for more info",
         "",
         "Press any key to return to editing..."
     ]
@@ -84,10 +88,11 @@ def show_help_menu(stdscr):
     stdscr.refresh()
 
 def draw_status_bar(stdscr, filename, buffer, cursor_y, cursor_x):
+    global time_24h
     h, w = stdscr.getmaxyx()
     name = filename if filename else "Untitled"
     word_count = sum(len(line.split()) for line in buffer)
-    clock = time.strftime("%H:%M")
+    clock = time.strftime("%H:%M") if time_24h else time.strftime("%I:%M %p")
     mod_marker = "*" if modified else ""
     status = f" {name}{mod_marker} - Words: {word_count} - Ln {cursor_y+1}, Col {cursor_x+1} - {clock} "
     stdscr.attron(curses.A_REVERSE)
@@ -109,7 +114,7 @@ def confirm_exit(stdscr):
             return False
 
 def main(stdscr):
-    global current_filename, scroll_offset, modified
+    global current_filename, scroll_offset, modified, time_24h
     curses.curs_set(1)
     stdscr.clear()
 
@@ -171,6 +176,9 @@ def main(stdscr):
                 cursor_y, cursor_x = 0, 0
                 scroll_offset = 0
                 modified = False
+
+        elif key == 20: # Ctrl+T
+            time_24h = not time_24h
 
         elif key == curses.KEY_LEFT:
             cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
