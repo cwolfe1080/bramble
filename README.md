@@ -13,9 +13,10 @@ To start Bramble:
  - Minimal UI
 
 ## Keybindings
-Ctrl+E     Save As  
+Ctrl+E     Save as  
 Ctrl+W     Save  
 Ctrl+O     Open file  
 Ctrl+X     Exit  
 Ctrl+H     Show help menu  
 Ctrl+T     Toggle time format  
+Ctrl+G     Set word goal
