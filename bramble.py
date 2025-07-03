@@ -7,6 +7,7 @@ current_filename = ''
 scroll_offset = 0
 modified = False
 time_24h = True
+word_goal = 0
 
 def save_to_file(buffer, filename):
     with open(filename + '.txt', "w") as f:
@@ -88,13 +89,14 @@ def show_help_menu(stdscr):
     stdscr.refresh()
 
 def draw_status_bar(stdscr, filename, buffer, cursor_y, cursor_x):
-    global time_24h
+    global time_24h, word_goal
     h, w = stdscr.getmaxyx()
     name = filename if filename else "Untitled"
     word_count = sum(len(line.split()) for line in buffer)
+    new_word_goal = ' / ' + str(word_goal) if word_goal > 0 else ""
     clock = time.strftime("%H:%M") if time_24h else time.strftime("%I:%M %p")
     mod_marker = "*" if modified else ""
-    status = f" {name}{mod_marker} - Words: {word_count} - Ln {cursor_y+1}, Col {cursor_x+1} - {clock} "
+    status = f" {name}{mod_marker} - Words: {word_count}{new_word_goal} - Ln {cursor_y+1}, Col {cursor_x+1} - {clock} "
     stdscr.attron(curses.A_REVERSE)
     stdscr.addstr(h - 1, 0, status[:w-1])
     stdscr.addstr(h - 1, len(status), " " * (w - len(status) - 1))
@@ -114,7 +116,7 @@ def confirm_exit(stdscr):
             return False
 
 def main(stdscr):
-    global current_filename, scroll_offset, modified, time_24h
+    global current_filename, scroll_offset, modified, time_24h, word_goal
     curses.curs_set(1)
     stdscr.clear()
 
@@ -130,6 +132,16 @@ def main(stdscr):
             if modified and not confirm_exit(stdscr):
                 continue
             break
+
+        elif key == 7: # Ctrl+G
+            try:
+                new_goal = prompt_filename(stdscr, "Set word goal: ")
+                if new_goal:
+                    word_goal = int(new_goal)
+                else:
+                    word_goal = 0
+            except ValueError:
+                show_popup(stdscr, "Invalid number", 40, 5)
 
         elif key == 8:  # Ctrl+H
             show_help_menu(stdscr)
