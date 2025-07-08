@@ -10,6 +10,7 @@ To start Bramble:
  - File Saving & Loading
  - Word Wrapping
  - Status bar displaying filename, word count, local time, and more
+ - Adjustable word goal
  - Minimal UI
 
 ## Keybindings
