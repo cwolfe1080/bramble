@@ -8,9 +8,17 @@ scroll_offset = 0
 modified = False
 time_24h = True
 word_goal = 0
+metadata = {}
 
 def save_to_file(buffer, filename):
+    global metadata
     with open(filename + '.txt', "w") as f:
+        # Write metadata
+        f.write("::metadata::\n")
+        for key, value in metadata.items():
+            f.write(f"{key}: {value}\n")
+            f.write("::end::\n\n")
+        # Write content
         for line in buffer:
             f.write(line + "\n")
 
@@ -116,6 +124,19 @@ def confirm_exit(stdscr):
         elif ch in (ord('n'), ord('N')):
             return False
 
+def mark_chapter(cursor_line, stdscr):
+    global metadata
+
+    if 'c' not in metadata:
+        metadata['c'] = []
+
+    if cursor_line not in metadata['c']:
+        metadata['c'].append(cursor_line)
+        show_popup(stdscr, f'Line {cursor_line} marked as chapter.', 50, 5)
+    else:
+        metadata['c'].remove(cursor_line)
+        show_popup(stdscr, f'Line {cursor_line} unmarked as chapter.', 50, 5)
+
 def main(stdscr):
     global current_filename, scroll_offset, modified, time_24h, word_goal
     curses.curs_set(1)
@@ -189,6 +210,9 @@ def main(stdscr):
                 cursor_y, cursor_x = 0, 0
                 scroll_offset = 0
                 modified = False
+
+        elif key == 14: # Ctrl+N
+            mark_chapter(cursor_y+1)
 
         elif key == 20: # Ctrl+T
             time_24h = not time_24h
