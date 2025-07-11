@@ -125,7 +125,6 @@ def show_help_menu(stdscr):
         "Ctrl+T   → Toggle time format",
         "Ctrl+G   → Set word goal",
         "Ctrl+N   → Mark line as chapter title",
-        "Ctrl+L   → Open outline "
         "Ctrl+H   → Show this help menu",
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
@@ -157,8 +156,7 @@ def draw_status_bar(stdscr, filename, buffer, cursor_y, cursor_x):
     status = f" {name}{mod_marker} - Words: {word_count}{new_word_goal} - Ln {cursor_y+1}, Col {cursor_x+1} - {clock} "
     stdscr.attron(curses.A_REVERSE)
     stdscr.addstr(h - 1, 0, status[:w-1])
-    pad_width = max(0, w - len(status) - 1)
-    stdscr.addstr(h - 1, len(status), " " * pad_width)
+    stdscr.addstr(h - 1, len(status), " " * (w - len(status) - 1))
     stdscr.attroff(curses.A_REVERSE)
 
 def confirm_exit(stdscr):
@@ -186,41 +184,6 @@ def mark_chapter(cursor_line, stdscr):
     else:
         metadata['c'].remove(cursor_line)
         show_popup(stdscr, f'Line {cursor_line + 1} unmarked as chapter.', 50, 5)
-
-def show_outline_menu(stdscr, buffer):
-    global metadata
-
-    if 'c' not in metadata or not metadata['c']:
-        show_popup(stdscr, "No chapters marked.", 40, 5)
-        return None
-
-    # Prepare outline entries
-    entries = []
-    for line_num in sorted(metadata['c']):
-        if 0 <= line_num < len(buffer):
-            title = buffer[line_num].strip()
-            entries.append(f"{len(entries)+1}. {title}")
-        else:
-            entries.append(f"{len(entries)+1}. (Invalid)")
-
-    # Menu dimensions
-    h, w = stdscr.getmaxyx()
-    win_height = len(entries) + 4
-    win_width = max(len(line) for line in entries)                    
-    win = curses.newwin(win_height, win_width, (h - win_height) // 2, (w - win_width) // 2)
-    win.box()
-    win.addstr(1, 2, "Outline Menu")
-
-    for i, line in enumerate(entries):
-        win.addstr(i + 2, 2, line[:win_width - 4])
-        
-    win.refresh()
-    key = win.getch()
-    choice = key - ord('1')
-
-    if 0 <= choice < len(metadata['c']):
-        return sorted(metadata['c'])[choice]
-    return None     
 
 def main(stdscr):
     global current_filename, scroll_offset, modified, time_24h, word_goal
@@ -304,12 +267,6 @@ def main(stdscr):
         elif key == 20: # Ctrl+T
             time_24h = not time_24h
             modified = True
-
-        elif key == 12: #Ctrl+L
-            result = show_outline_menu(stdscr, buffer)
-            if result is not None:
-                cursor_y = result
-                cursor_x = 0
 
         elif key == curses.KEY_LEFT:
             cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
