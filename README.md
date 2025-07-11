@@ -12,6 +12,7 @@ To start Bramble:
  - Status bar displaying filename, word count, local time, and more
  - Adjustable word goal
  - Chapter markers
+ - Chapter outline menu
  - Minimal UI
 
 ## Keybindings
@@ -23,3 +24,4 @@ Ctrl+H     Show help menu
 Ctrl+T     Toggle time format  
 Ctrl+G     Set word goal  
 Ctrl+N     Mark chapter  
+Ctrl+L     Toggle outline menu  
