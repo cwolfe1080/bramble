@@ -206,7 +206,8 @@ def show_outline_menu(stdscr, buffer):
     # Menu dimensions
     h, w = stdscr.getmaxyx()
     win_height = len(entries) + 4
-    win_width = max(len(line) for line in entries)                    
+    min_width= 40
+    win_width = max(min_width, max(len(line) for line in entries) + 6)                    
     win = curses.newwin(win_height, win_width, (h - win_height) // 2, (w - win_width) // 2)
     win.box()
     win.addstr(1, 2, "Outline Menu")
