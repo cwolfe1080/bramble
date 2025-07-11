@@ -11,24 +11,71 @@ word_goal = 0
 metadata = {}
 
 def save_to_file(buffer, filename):
-    global metadata
+    global metadata, word_goal, time_24h
+    metadata['g'] = word_goal
+    metadata['t'] = time_24h
     with open(filename + '.txt', "w") as f:
         # Write metadata
         f.write("::metadata::\n")
         for key, value in metadata.items():
-            f.write(f"{key}: {value}\n")
-            f.write("::end::\n\n")
+            if key == 'c' and isinstance(value, list):
+                for line_num in value:
+                    f.write(f"c: {line_num}\n")
+            else:
+                f.write(f"{key}: {value}\n")
+        f.write("::end::\n")
         # Write content
         for line in buffer:
             f.write(line + "\n")
 
 def load_from_file(filename):
+    global metadata, word_goal, time_24h
+    metadata = {}
+    
     try:
         with open(filename + '.txt', "r") as f:
-            return [line.rstrip("\n") for line in f.readlines()]
+            lines = f.readlines()
+
+        # Metadata detection
+        content_start = 0
+        if lines and lines[0].strip() == "::metadata::":
+            for i, line in enumerate(lines[1:], 1):
+                stripped = line.strip()
+                if stripped == "::end::":
+                    content_start = i + 1
+                    break
+                # Parse metadata line
+                if ':' in stripped:
+                    key, value = stripped.split(":", 1)
+                    key = key.strip()
+                    value = value.strip()
+
+                    # Handle chapter lines separately
+                    if key == 'c':
+                        if 'c' not in metadata:
+                            metadata['c'] = []
+                        try:
+                            metadata['c'].append(int(value))
+                        except ValueError:
+                            pass
+                    elif key == 'g':
+                        try:
+                            metadata['g'] = int(value)
+                            word_goal = metadata['g']
+                        except ValueError:
+                            word_goal = 0
+                    elif key == 't':
+                        time_24h = value.lower() == 'true'
+                        metadata['t'] = time_24h
+
+        
+        # Load actual buffer
+        return [line.rstrip("\n") for line in lines[content_start:]]
+
     except FileNotFoundError:
         return ['']
 
+                            
 def move_cursor(direction, buffer, cursor_y, cursor_x):
     if direction == 'left':
         if cursor_x > 0:
@@ -77,6 +124,7 @@ def show_help_menu(stdscr):
         "Ctrl+O   → Open a document",
         "Ctrl+T   → Toggle time format",
         "Ctrl+G   → Set word goal",
+        "Ctrl+N   → Mark line as chapter title",
         "Ctrl+H   → Show this help menu",
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
@@ -132,10 +180,10 @@ def mark_chapter(cursor_line, stdscr):
 
     if cursor_line not in metadata['c']:
         metadata['c'].append(cursor_line)
-        show_popup(stdscr, f'Line {cursor_line} marked as chapter.', 50, 5)
+        show_popup(stdscr, f'Line {cursor_line + 1} marked as chapter.', 50, 5)
     else:
         metadata['c'].remove(cursor_line)
-        show_popup(stdscr, f'Line {cursor_line} unmarked as chapter.', 50, 5)
+        show_popup(stdscr, f'Line {cursor_line + 1} unmarked as chapter.', 50, 5)
 
 def main(stdscr):
     global current_filename, scroll_offset, modified, time_24h, word_goal
@@ -160,6 +208,7 @@ def main(stdscr):
                 new_goal = prompt_filename(stdscr, "Set word goal: ")
                 if new_goal:
                     word_goal = int(new_goal)
+                    modified = True
                 else:
                     word_goal = 0
             except ValueError:
@@ -212,10 +261,12 @@ def main(stdscr):
                 modified = False
 
         elif key == 14: # Ctrl+N
-            mark_chapter(cursor_y+1)
+            mark_chapter(cursor_y, stdscr)
+            modified = True
 
         elif key == 20: # Ctrl+T
             time_24h = not time_24h
+            modified = True
 
         elif key == curses.KEY_LEFT:
             cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
