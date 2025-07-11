@@ -256,7 +256,10 @@ def main(stdscr):
             show_help_menu(stdscr)
 
         elif key in (10, 13):  # Enter
-            buffer.insert(cursor_y + 1, '')
+            if cursor_y == 0 and cursor_x == 0:
+                buffer.insert(cursor_y, '')
+            else:
+                buffer.insert(cursor_y + 1, '')
             cursor_y += 1
             cursor_x = 0
             modified = True
