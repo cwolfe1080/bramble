@@ -373,7 +373,7 @@ def main(stdscr):
                 buffer = result
                 cursor_y, cursor_x = 0, 0
                 scroll_offset = 0
-                modified + True
+                modified = True
 
         elif key == curses.KEY_LEFT:
             cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
