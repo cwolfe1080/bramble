@@ -2,6 +2,8 @@ import curses
 import textwrap
 import time
 
+# \n
+
 # Initialize state
 current_filename = ''
 scroll_offset = 0
@@ -125,7 +127,8 @@ def show_help_menu(stdscr):
         "Ctrl+T   → Toggle time format",
         "Ctrl+G   → Set word goal",
         "Ctrl+N   → Mark line as chapter title",
-        "Ctrl+L   → Open outline "
+        "Ctrl+L   → Open outline",
+        "Ctrl+I   → Open the import/export menu",
         "Ctrl+H   → Show this help menu",
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
@@ -221,7 +224,55 @@ def show_outline_menu(stdscr, buffer):
 
     if 0 <= choice < len(metadata['c']):
         return sorted(metadata['c'])[choice]
-    return None     
+    return None
+
+def import_export_menu(stdscr, buffer):
+    options = [
+        "1. Export clean version (no metadata)",
+        "2. Import plain text file",
+        "Any other key to cancel"
+    ]
+
+    h, w = stdscr.getmaxyx()
+    win_height = len(options) + 4
+    win_width = max(len(line) for line in options) + 6
+    win = curses.newwin(win_height, win_width, (h - win_height) // 2, (w - win_width) // 2)
+    win.box()
+    win.addstr(1, 2, "Choose an option:")
+
+    for i, line in enumerate(options):
+        win.addstr(i + 2, 2, line)
+
+    win.refresh()
+    key = win.getch()
+
+    if key == ord('1'):
+        name = prompt_filename(stdscr, "Export clean as:")
+        if name:
+            export_clean(buffer, name)
+            show_popup(stdscr, f"Exported {name}_clean.txt", 50, 5)
+    elif key == ord('2'):
+        name = prompt_filename(stdscr, "Import plain text file:")
+        if name:
+            return import_plain_text(name)
+
+    win.clear()
+    stdscr.refresh()
+    return None
+
+def export_clean(buffer, filename):
+    with open(filename + '_clean.txt', 'w') as f:
+        for line in buffer:
+            f.write(line + "\n")            
+
+def import_plain_text(filename):
+    try: 
+        with open(filename + '.txt', 'r') as f:
+            return [line.rstrip("\n") for line in f.readlines()]
+    except FileNotFoundError:
+        return ['']        
+
+
 
 def main(stdscr):
     global current_filename, scroll_offset, modified, time_24h, word_goal
@@ -256,10 +307,11 @@ def main(stdscr):
             show_help_menu(stdscr)
 
         elif key in (10, 13):  # Enter
-            if cursor_y == 0 and cursor_x == 0:
-                buffer.insert(cursor_y, '')
-            else:
-                buffer.insert(cursor_y + 1, '')
+            line = buffer[cursor_y]
+            before = line[:cursor_x]
+            after = line[cursor_x:]
+            buffer[cursor_y] = before
+            buffer.insert(cursor_y + 1, after)
             cursor_y += 1
             cursor_x = 0
             modified = True
@@ -314,6 +366,14 @@ def main(stdscr):
             if result is not None:
                 cursor_y = result
                 cursor_x = 0
+
+        elif key == 9: # Ctrl+I
+            result = import_export_menu(stdscr, buffer)
+            if result is not None:
+                buffer = result
+                cursor_y, cursor_x = 0, 0
+                scroll_offset = 0
+                modified + True
 
         elif key == curses.KEY_LEFT:
             cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
