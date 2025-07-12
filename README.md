@@ -13,7 +13,7 @@ To start Bramble:
  - Adjustable word goal
  - Chapter markers
  - Chapter outline menu
- - Minimal UI
+ - Import/export menu
 
 ## Keybindings
 Ctrl+E     Save as  
