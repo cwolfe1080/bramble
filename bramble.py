@@ -129,6 +129,7 @@ def show_help_menu(stdscr):
         "Ctrl+N   → Mark line as chapter title",
         "Ctrl+L   → Open outline",
         "Ctrl+I   → Open the import/export menu",
+        "Ctrl+K   → Jump to line",
         "Ctrl+H   → Show this help menu",
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
@@ -375,6 +376,17 @@ def main(stdscr):
                 scroll_offset = 0
                 modified = True
 
+        elif  key == 11: # Ctrl+K
+            try:
+                jump = prompt_filename(stdscr, "Jump to line: ")
+                if jump:
+                    cursor_y = int(jump) - 1
+            except ValueError:
+                show_popup(stdscr, "Invalid number", 40, 5)
+            except IndexError:
+                show_popup(stdscr, "Line does not exist", 40, 5)
+
+            
         elif key == curses.KEY_LEFT:
             cursor_y, cursor_x = move_cursor('left', buffer, cursor_y, cursor_x)
         elif key == curses.KEY_RIGHT:
