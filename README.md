@@ -26,3 +26,4 @@ Ctrl+G     Set word goal
 Ctrl+N     Mark chapter  
 Ctrl+L     Toggle outline menu  
 Ctrl+I     Open import/export menu  
+Ctrl+K     Jump to line  
