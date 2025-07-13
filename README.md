@@ -14,6 +14,7 @@ To start Bramble:
  - Chapter markers
  - Chapter outline menu
  - Import/export menu
+ - Jump to line function
 
 ## Keybindings
 Ctrl+E     Save as  
