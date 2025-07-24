@@ -1,6 +1,7 @@
 import curses
 import textwrap
 import time
+import sys
 
 # \n
 
@@ -284,6 +285,18 @@ def main(stdscr):
     height -= 1
     buffer = ['']
     cursor_y, cursor_x = 0, 0
+    try:
+        if len(sys.argv) > 1:
+    	    filename = sys.argv[1]
+    	    filename = filename + '.txt'
+    	    buffer = load_from_file(filename)
+    	    current_filename = filename
+    	    modified = False
+        else:
+    	    buffer = ['']
+    except FileNotFoundError:
+        show_popup(stdscr, "File not found", 30, 5)
+
 
     while True:
         key = stdscr.getch()
