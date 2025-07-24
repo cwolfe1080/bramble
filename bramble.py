@@ -288,9 +288,8 @@ def main(stdscr):
     try:
         if len(sys.argv) > 1:
     	    filename = sys.argv[1]
-    	    filename = filename + '.txt'
-    	    buffer = load_from_file(filename)
     	    current_filename = filename
+    	    buffer = load_from_file(filename)
     	    modified = False
         else:
     	    buffer = ['']
