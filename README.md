@@ -15,6 +15,7 @@ To start Bramble:
  - Chapter outline menu
  - Import/export menu
  - Jump to line function
+ - Open file from terminal
 
 ## Keybindings
 Ctrl+E     Save as  
