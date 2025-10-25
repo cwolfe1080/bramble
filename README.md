@@ -23,7 +23,7 @@ Ctrl+W     Save
 Ctrl+O     Open file  
 Ctrl+X     Exit  
 Ctrl+Z     Show help menu  
-Ctrl+T     Toggle time format  
+Ctrl+Q     Toggle time format  
 Ctrl+G     Set word goal  
 Ctrl+N     Mark chapter  
 Ctrl+L     Toggle outline menu  

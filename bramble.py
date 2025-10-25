@@ -8,7 +8,7 @@ KEY_EXIT = 24           # Ctrl+X
 KEY_SAVE = 23           # Ctrl+W
 KEY_SAVE_AS = 5         # Ctrl+E
 KEY_OPEN = 15           # Ctrl+O
-KEY_TOGGLE_TIME = 20    # Ctrl+T
+KEY_TOGGLE_TIME = 17    # Ctrl+Q
 KEY_WORD_GOAL = 7       # Ctrl+G
 KEY_CHAPTER = 14        # Ctrl+N
 KEY_OUTLINE = 12        # Ctrl+L
@@ -139,7 +139,7 @@ def show_help_menu(stdscr):
         "Ctrl+E   → Save As (Names and saves the buffer)",
         "Ctrl+W   → Save (Saves the buffer to the current filename)",
         "Ctrl+O   → Open a document",
-        "Ctrl+T   → Toggle time format",
+        "Ctrl+Q   → Toggle time format",
         "Ctrl+G   → Set word goal",
         "Ctrl+N   → Mark line as chapter title",
         "Ctrl+L   → Open outline",
@@ -314,6 +314,9 @@ def main(stdscr):
     while True:
         key = stdscr.getch()
 
+        stdscr.addstr(0, 0, f"Key code: {key}")
+        stdscr.refresh()
+
         if key == KEY_EXIT:  # Ctrl+X
             if modified and not confirm_exit(stdscr):
                 continue
@@ -384,7 +387,7 @@ def main(stdscr):
             mark_chapter(cursor_y, stdscr)
             modified = True
 
-        elif key == KEY_TOGGLE_TIME: # Ctrl+T
+        elif key == KEY_TOGGLE_TIME: # Ctrl+Q
             time_24h = not time_24h
             modified = True
 
