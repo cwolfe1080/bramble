@@ -14,7 +14,7 @@ KEY_CHAPTER = 14        # Ctrl+N
 KEY_OUTLINE = 12        # Ctrl+L
 KEY_IMPORT_EXPORT = 9   # Ctrl+I
 KEY_JUMP_TO_LINE = 11   # Ctrl+K
-KEY_HELP = 10           # Ctrl+J
+KEY_HELP = 26           # Ctrl+Z
 
 
 # \n
@@ -145,7 +145,7 @@ def show_help_menu(stdscr):
         "Ctrl+L   → Open outline",
         "Ctrl+I   → Open the import/export menu",
         "Ctrl+K   → Jump to line",
-        "Ctrl+J   → Show this help menu",
+        "Ctrl+Z   → Show this help menu",
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
         "",
@@ -330,7 +330,7 @@ def main(stdscr):
             except ValueError:
                 show_popup(stdscr, "Invalid number", 40, 5)
 
-        elif key == KEY_HELP:  # Ctrl+J
+        elif key == KEY_HELP:  # Ctrl+Z
             show_help_menu(stdscr)
 
         elif key in (10, 13):  # Enter
