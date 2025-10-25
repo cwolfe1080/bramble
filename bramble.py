@@ -3,6 +3,20 @@ import textwrap
 import time
 import sys
 
+# Windows-specific keybindings (ASCII control codes)
+KEY_EXIT = 24           # Ctrl+X
+KEY_SAVE = 23           # Ctrl+W
+KEY_SAVE_AS = 5         # Ctrl+E
+KEY_OPEN = 15           # Ctrl+O
+KEY_TOGGLE_TIME = 20    # Ctrl+T
+KEY_WORD_GOAL = 7       # Ctrl+G
+KEY_CHAPTER = 14        # Ctrl+N
+KEY_OUTLINE = 12        # Ctrl+L
+KEY_IMPORT_EXPORT = 9   # Ctrl+I
+KEY_JUMP_TO_LINE = 11   # Ctrl+K
+KEY_HELP = 10           # Ctrl+J
+
+
 # \n
 
 # Initialize state
@@ -300,12 +314,12 @@ def main(stdscr):
     while True:
         key = stdscr.getch()
 
-        if key == 24:  # Ctrl+X
+        if key == KEY_EXIT:  # Ctrl+X
             if modified and not confirm_exit(stdscr):
                 continue
             break
 
-        elif key == 7: # Ctrl+G
+        elif key == KEY_WORD_GOAL: # Ctrl+G
             try:
                 new_goal = prompt_filename(stdscr, "Set word goal: ")
                 if new_goal:
@@ -316,7 +330,7 @@ def main(stdscr):
             except ValueError:
                 show_popup(stdscr, "Invalid number", 40, 5)
 
-        elif key == 8:  # Ctrl+H
+        elif key == KEY_HELP:  # Ctrl+J
             show_help_menu(stdscr)
 
         elif key in (10, 13):  # Enter
@@ -342,14 +356,14 @@ def main(stdscr):
                 buffer[cursor_y] += current_line
                 modified = True
 
-        elif key == 5:  # Ctrl+E
+        elif key == KEY_SAVE_AS:  # Ctrl+E
             name = prompt_filename(stdscr, "Name document: ")
             if name:
                 current_filename = name
                 save_to_file(buffer, current_filename)
                 modified = False
 
-        elif key == 23:  # Ctrl+W
+        elif key == KEY_SAVE:  # Ctrl+W
             if current_filename:
                 save_to_file(buffer, current_filename)
                 modified = False
@@ -357,7 +371,7 @@ def main(stdscr):
             else:
                 show_popup(stdscr, "No filename set. Use Save As (Ctrl+E) first.", 50, 5)
 
-        elif key == 15:  # Ctrl+O
+        elif key == KEY_OPEN:  # Ctrl+O
             name = prompt_filename(stdscr, "Load document: ")
             if name:
                 current_filename = name
@@ -366,21 +380,21 @@ def main(stdscr):
                 scroll_offset = 0
                 modified = False
 
-        elif key == 14: # Ctrl+N
+        elif key == KEY_CHAPTER: # Ctrl+N
             mark_chapter(cursor_y, stdscr)
             modified = True
 
-        elif key == 20: # Ctrl+T
+        elif key == KEY_TOGGLE_TIME: # Ctrl+T
             time_24h = not time_24h
             modified = True
 
-        elif key == 12: #Ctrl+L
+        elif key == KEY_OUTLINE: #Ctrl+L
             result = show_outline_menu(stdscr, buffer)
             if result is not None:
                 cursor_y = result
                 cursor_x = 0
 
-        elif key == 9: # Ctrl+I
+        elif key == KEY_IMPORT_EXPORT: # Ctrl+I
             result = import_export_menu(stdscr, buffer)
             if result is not None:
                 buffer = result
@@ -388,7 +402,7 @@ def main(stdscr):
                 scroll_offset = 0
                 modified = True
 
-        elif  key == 11: # Ctrl+K
+        elif  key == KEY_JUMP_TO_LINE: # Ctrl+K
             try:
                 jump = prompt_filename(stdscr, "Jump to line: ")
                 if jump:
