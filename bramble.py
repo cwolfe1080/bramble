@@ -314,9 +314,6 @@ def main(stdscr):
     while True:
         key = stdscr.getch()
 
-        stdscr.addstr(0, 0, f"Key code: {key}")
-        stdscr.refresh()
-
         if key == KEY_EXIT:  # Ctrl+X
             if modified and not confirm_exit(stdscr):
                 continue
