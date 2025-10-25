@@ -29,3 +29,5 @@ Ctrl+N     Mark chapter
 Ctrl+L     Toggle outline menu  
 Ctrl+I     Open import/export menu  
 Ctrl+K     Jump to line  
+
+(This is the windows port and is a work in progress.)
