@@ -145,7 +145,7 @@ def show_help_menu(stdscr):
         "Ctrl+L   → Open outline",
         "Ctrl+I   → Open the import/export menu",
         "Ctrl+K   → Jump to line",
-        "Ctrl+H   → Show this help menu",
+        "Ctrl+J   → Show this help menu",
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
         "",
