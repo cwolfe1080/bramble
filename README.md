@@ -1,6 +1,6 @@
 # Bramble Word Processor
 
-**Bramble** is a lightweight, terminal-based word processor built for writer decks. It's designed to be distraction-free, fast, and intuitive-perfect for drafting stories, notes, or anything in plain text.
+**Bramble** is a lightweight, terminal-based word processor built for writer decks. It's designed to be distraction-free, fast, and intuitive-perfect for drafting stories, notes, or anything in plain text. Most writer decks don't use windows as their operating system, but if they do, or if you just like using the tool, this is the windows port.
 
 ## Launch
 To start Bramble:  
