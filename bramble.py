@@ -11,7 +11,7 @@ KEY_OPEN = 15           # Ctrl+O
 KEY_TOGGLE_TIME = 17    # Ctrl+Q
 KEY_WORD_GOAL = 7       # Ctrl+G
 KEY_CHAPTER = 14        # Ctrl+N
-KEY_OUTLINE = 12        # Ctrl+L
+KEY_OUTLINE = 18        # Ctrl+R
 KEY_IMPORT_EXPORT = 9   # Ctrl+I
 KEY_JUMP_TO_LINE = 11   # Ctrl+K
 KEY_HELP = 26           # Ctrl+Z
@@ -142,7 +142,7 @@ def show_help_menu(stdscr):
         "Ctrl+Q   → Toggle time format",
         "Ctrl+G   → Set word goal",
         "Ctrl+N   → Mark line as chapter title",
-        "Ctrl+L   → Open outline",
+        "Ctrl+R   → Open outline",
         "Ctrl+I   → Open the import/export menu",
         "Ctrl+K   → Jump to line",
         "Ctrl+Z   → Show this help menu",
@@ -391,7 +391,7 @@ def main(stdscr):
             time_24h = not time_24h
             modified = True
 
-        elif key == KEY_OUTLINE: #Ctrl+L
+        elif key == KEY_OUTLINE: #Ctrl+R
             result = show_outline_menu(stdscr, buffer)
             if result is not None:
                 cursor_y = result
