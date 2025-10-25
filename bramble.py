@@ -13,7 +13,7 @@ KEY_WORD_GOAL = 7       # Ctrl+G
 KEY_CHAPTER = 14        # Ctrl+N
 KEY_OUTLINE = 18        # Ctrl+R
 KEY_IMPORT_EXPORT = 9   # Ctrl+I
-KEY_JUMP_TO_LINE = 11   # Ctrl+K
+KEY_JUMP_TO_LINE = 21   # Ctrl+U
 KEY_HELP = 26           # Ctrl+Z
 
 
@@ -144,7 +144,7 @@ def show_help_menu(stdscr):
         "Ctrl+N   → Mark line as chapter title",
         "Ctrl+R   → Open outline",
         "Ctrl+I   → Open the import/export menu",
-        "Ctrl+K   → Jump to line",
+        "Ctrl+U   → Jump to line",
         "Ctrl+Z   → Show this help menu",
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
@@ -405,7 +405,7 @@ def main(stdscr):
                 scroll_offset = 0
                 modified = True
 
-        elif  key == KEY_JUMP_TO_LINE: # Ctrl+K
+        elif  key == KEY_JUMP_TO_LINE: # Ctrl+U
             try:
                 jump = prompt_filename(stdscr, "Jump to line: ")
                 if jump:

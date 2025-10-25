@@ -28,6 +28,6 @@ Ctrl+G     Set word goal
 Ctrl+N     Mark chapter  
 Ctrl+R     Toggle outline menu  
 Ctrl+I     Open import/export menu  
-Ctrl+K     Jump to line  
+Ctrl+U     Jump to line  
 
-(This is the windows port and is a work in progress.)
+(This is the windows port and is a work in progress. Also, a lot of the keybinds are different from the Linux version due to Windows keycodes being and acting differently.)
