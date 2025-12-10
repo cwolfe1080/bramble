@@ -135,6 +135,7 @@ def show_help_menu(stdscr):
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
         "",
+        "V1.3",
         "See github.com/cwolfe1080/bramble.git for more info",
         "",
         "Press any key to return to editing..."
