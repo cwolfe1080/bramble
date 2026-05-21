@@ -135,7 +135,7 @@ def show_help_menu(stdscr):
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
         "",
-        "V1.3.2",
+        "V1.3.3",
         "See github.com/cwolfe1080/bramble.git for more info",
         "",
         "Press any key to return to editing..."
@@ -313,6 +313,7 @@ def main(stdscr):
                     word_goal = int(new_goal)
                     modified = True
                 else:
+                    # For God so loved the world, that he gave his only Son, that whoever belives in him should not perish but have eternal life. John 3:16 ESV
                     word_goal = 0
             except ValueError:
                 show_popup(stdscr, "Invalid number", 40, 5)
