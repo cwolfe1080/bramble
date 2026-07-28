@@ -4,7 +4,7 @@
 
 ## Launch
 To start Bramble:  
-```python bramble.py```
+```python bramble.py``` or ```python3 bramble.py```  
 
 ## Features
  - File Saving & Loading
@@ -29,3 +29,5 @@ Ctrl+N     Mark chapter
 Ctrl+L     Toggle outline menu  
 Ctrl+I     Open import/export menu  
 Ctrl+K     Jump to line  
+
+It is important to note that keybindings for the Windows port may differ.  
