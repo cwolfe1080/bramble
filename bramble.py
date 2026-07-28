@@ -434,7 +434,7 @@ def main(stdscr):
             scroll_offset = cursor_y - height + 1
         scroll_offset = max(0, min(scroll_offset, len(buffer) - height))
 
-        stdscr.clear()
+        stdscr.erase()
         draw_status_bar(stdscr, current_filename, buffer, cursor_y, cursor_x)
         for i, line in enumerate(buffer[scroll_offset : scroll_offset + height]):
             stdscr.addstr(i, 0, line[:width])
