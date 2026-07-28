@@ -1,5 +1,4 @@
 import curses
-import textwrap
 import time
 import sys
 
@@ -135,7 +134,7 @@ def show_help_menu(stdscr):
         "Ctrl+X   → Exit",
         "Arrow Keys → Move cursor",
         "",
-        "V1.3.4",
+        "V1.4.0",
         "See github.com/cwolfe1080/bramble.git for more info",
         "",
         "Press any key to return to editing..."
@@ -417,11 +416,25 @@ def main(stdscr):
             modified = True
 
             if len(buffer[cursor_y]) > width:
-                long_line = buffer.pop(cursor_y)
-                wrapped = textwrap.wrap(long_line, width)
-                buffer[cursor_y:cursor_y] = wrapped
-                cursor_y += len(wrapped) - 1
-                cursor_x = len(wrapped[-1])
+                line = buffer[cursor_y]
+
+                split = line.rfind(" ", 0, width)
+
+                if split == -1:
+                    split = width
+
+                first = line[:split]
+                second = line[split:]
+
+                if second.startswith(" "):
+                    second = second[1:]
+
+                buffer[cursor_y] = first
+                buffer.insert(cursor_y + 1, second)
+
+                if cursor_x > split:
+                    cursor_y += 1
+                    cursor_x -= split + 1
 
         # Clamp cursor
         cursor_y = max(0, min(cursor_y, len(buffer) - 1))
